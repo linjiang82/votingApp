@@ -14,8 +14,10 @@ class _PincodeUpdaterState extends State<PincodeUpdater> {
   final TextEditingController _oldPinCode = TextEditingController();
   final TextEditingController _newPinCode = TextEditingController();
   final TextEditingController _confirmNewPin = TextEditingController();
-  bool hasError = false;
-  String errorMsg = '';
+  bool hasOldPinError = false;
+  bool hasUnmatchedPinError = false;
+  String oldPinErrorMsg = '';
+  String unmatchedPinErrorMsg = '';
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -76,16 +78,18 @@ class _PincodeUpdaterState extends State<PincodeUpdater> {
                 pinBoxHeight: 50,
                 pinTextStyle: TextStyle(
                     fontSize: 18, color: Theme.of(context).colorScheme.primary),
+                hideCharacter: true,
+                maskCharacter: "*",
                 onDone: (text) {
                   if (text != userBox.get('pincode')) {
                     setState(() {
-                      hasError = true;
-                      errorMsg = 'Wrong Pin';
+                      hasOldPinError = true;
+                      oldPinErrorMsg = 'Wrong Pin';
                     });
                   } else {
                     setState(() {
-                      hasError = false;
-                      errorMsg = '';
+                      hasOldPinError = false;
+                      oldPinErrorMsg = '';
                     });
                   }
                 },
@@ -94,11 +98,18 @@ class _PincodeUpdaterState extends State<PincodeUpdater> {
                 //highlightPinBoxColor:
                 //Theme.of(context).colorScheme.onSurface,
                 maxLength: 4,
+                hasError: hasOldPinError,
                 hasUnderline: false,
                 pinBoxColor: Theme.of(context).cardTheme.color,
                 defaultBorderColor: Theme.of(context).colorScheme.onSurface,
                 pinBoxRadius: 10.0,
                 hasTextBorderColor: Theme.of(context).colorScheme.primary),
+            Visibility(
+              child: Text(oldPinErrorMsg,
+                  style: TextStyle(color: Colors.redAccent),
+                  textAlign: TextAlign.center),
+              visible: hasOldPinError,
+            ),
             SizedBox(height: 20),
             Align(
               alignment: Alignment.centerLeft,
@@ -119,11 +130,14 @@ class _PincodeUpdaterState extends State<PincodeUpdater> {
                 pinBoxHeight: 50,
                 pinTextStyle: TextStyle(
                     fontSize: 18, color: Theme.of(context).colorScheme.primary),
+                hideCharacter: true,
+                maskCharacter: "*",
                 highlight: true,
                 highlightColor: Theme.of(context).colorScheme.primary,
                 //highlightPinBoxColor:
                 //Theme.of(context).colorScheme.onSurface,
                 maxLength: 4,
+                hasError: hasUnmatchedPinError,
                 hasUnderline: false,
                 pinBoxColor: Theme.of(context).cardTheme.color,
                 defaultBorderColor: Theme.of(context).colorScheme.onSurface,
@@ -149,16 +163,19 @@ class _PincodeUpdaterState extends State<PincodeUpdater> {
                 pinBoxHeight: 50,
                 pinTextStyle: TextStyle(
                     fontSize: 18, color: Theme.of(context).colorScheme.primary),
+                hideCharacter: true,
+                maskCharacter: "*",
                 onDone: (text) {
                   if (text != _newPinCode.text) {
                     setState(() {
-                      hasError = true;
-                      errorMsg = 'Password confirmation must match Password';
+                      hasUnmatchedPinError = true;
+                      unmatchedPinErrorMsg =
+                          'Password confirmation must match Password';
                     });
                   } else {
                     setState(() {
-                      hasError = false;
-                      errorMsg = '';
+                      hasUnmatchedPinError = false;
+                      unmatchedPinErrorMsg = '';
                     });
                   }
                 },
@@ -167,17 +184,18 @@ class _PincodeUpdaterState extends State<PincodeUpdater> {
                 //highlightPinBoxColor:
                 //Theme.of(context).colorScheme.onSurface,
                 maxLength: 4,
+                hasError: hasUnmatchedPinError,
                 hasUnderline: false,
                 pinBoxColor: Theme.of(context).cardTheme.color,
                 defaultBorderColor: Theme.of(context).colorScheme.onSurface,
                 pinBoxRadius: 10.0,
                 hasTextBorderColor: Theme.of(context).colorScheme.primary),
-            SizedBox(height: 20),
+            SizedBox(height: 10),
             Visibility(
-              child: Text(errorMsg,
+              child: Text(unmatchedPinErrorMsg,
                   style: TextStyle(color: Colors.redAccent),
                   textAlign: TextAlign.center),
-              visible: hasError,
+              visible: hasUnmatchedPinError,
             ),
             SizedBox(height: 30),
             RaisedButton(

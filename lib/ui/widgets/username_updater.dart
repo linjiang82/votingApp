@@ -13,7 +13,8 @@ class _UsernameUpdaterState extends State<UsernameUpdater> {
   final TextEditingController _userName = TextEditingController();
   final TextEditingController _pinCode = TextEditingController();
   Box userBox = Hive.box<String>(HIVE_USER_PREFS_STR);
-  bool hasError = false;
+  bool hasUsernameError = false;
+  bool hasPinError = false;
   String errorMsg = '';
 
   @override
@@ -71,7 +72,15 @@ class _UsernameUpdaterState extends State<UsernameUpdater> {
               ),
             ),
             SizedBox(height: 10),
-            TextField(
+            TextFormField(
+                validator: (text) {
+                  RegExp exp = RegExp(r"[^0-9a-zA-Z]");
+                  if (text.length < 2 || text.length > 50)
+                    return 'The length must be between 2 and 50';
+                  else if (exp.allMatches(text).length != 0)
+                    return 'No special charactors allowed';
+                  return null;
+                },
                 controller: _userName,
                 decoration: InputDecoration(
                     filled: true,
@@ -98,15 +107,17 @@ class _UsernameUpdaterState extends State<UsernameUpdater> {
                 pinBoxHeight: 50,
                 pinTextStyle: TextStyle(
                     fontSize: 18, color: Theme.of(context).colorScheme.primary),
+                hideCharacter: true,
+                maskCharacter: "*",
                 onDone: (text) {
                   if (text != userBox.get('pincode')) {
                     setState(() {
-                      hasError = true;
+                      hasPinError = true;
                       errorMsg = 'Wrong PIN';
                     });
                   } else {
                     setState(() {
-                      hasError = false;
+                      hasPinError = false;
                       errorMsg = '';
                     });
                   }
@@ -117,17 +128,17 @@ class _UsernameUpdaterState extends State<UsernameUpdater> {
                 //Theme.of(context).colorScheme.onSurface,
                 maxLength: 4,
                 hasUnderline: false,
-                hasError: hasError,
+                hasError: hasPinError,
                 pinBoxColor: Theme.of(context).cardTheme.color,
                 defaultBorderColor: Theme.of(context).colorScheme.onSurface,
                 pinBoxRadius: 10.0,
                 hasTextBorderColor: Theme.of(context).colorScheme.primary),
-            SizedBox(height: 20),
+            SizedBox(height: 10),
             Visibility(
               child: Text(errorMsg,
                   style: TextStyle(color: Colors.redAccent),
                   textAlign: TextAlign.center),
-              visible: hasError,
+              visible: hasPinError || hasUsernameError,
             ),
             SizedBox(height: 30),
             RaisedButton(
@@ -138,21 +149,21 @@ class _UsernameUpdaterState extends State<UsernameUpdater> {
                 RegExp exp = RegExp(r"[^0-9a-zA-Z]");
                 if (_userName.text.length < 2 || _userName.text.length > 50) {
                   setState(() {
-                    hasError = true;
+                    hasUsernameError = true;
                     errorMsg =
                         'The length of Username must be between 2 and 50';
                   });
                 } else if (exp.allMatches(_userName.text).length != 0)
                   setState(() {
-                    hasError = true;
+                    hasUsernameError = true;
                     errorMsg = 'No special charactors allowed in Username';
                   });
                 else
                   setState(() {
-                    hasError = false;
+                    hasUsernameError = false;
                     errorMsg = '';
                   });
-                if (!hasError) {
+                if (!hasUsernameError && !hasPinError) {
                   userBox.put('firstName', _userName.text);
                   final snackBar = SnackBar(
                     content: Text('User name has been changed'),
